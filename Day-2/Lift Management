@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define the maximum number of floors
+#define MAX_FLOORS 10
+
+// Define the structure for a queue node
+typedef struct Node {
+    int floor;
+    struct Node* next;
+} Node;
+
+// Define the structure for a queue
+typedef struct Queue {
+    Node* front;
+    Node* rear;
+} Queue;
+
+// Function to create a new queue node
+Node* createNode(int floor) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (!newNode) {
+        printf("Memory error\n");
+        return NULL;
+    }
+    newNode->floor = floor;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to create a new queue
+Queue* createQueue() {
+    Queue* q = (Queue*)malloc(sizeof(Queue));
+    if (!q) {
+        printf("Memory error\n");
+        return NULL;
+    }
+    q->front = q->rear = NULL;
+    return q;
+}
+
+// Function to check if the queue is empty
+int isEmpty(Queue* q) {
+    return (q->front == NULL);
+}
+
+// Function to add a floor to the queue
+void enqueue(Queue* q, int floor) {
+    Node* newNode = createNode(floor);
+    if (q->rear) {
+        q->rear->next = newNode;
+        q->rear = newNode;
+    } else {
+        q->front = q->rear = newNode;
+    }
+}
+
+// Function to remove a floor from the queue
+void dequeue(Queue* q) {
+    if (isEmpty(q)) {
+        printf("Queue is empty\n");
+        return;
+    }
+    Node* temp = q->front;
+    q->front = q->front->next;
+    if (q->front == NULL) {
+        q->rear = NULL;
+    }
+    free(temp);
+}
+
+// Function to display the floors in the queue
+void displayQueue(Queue* q) {
+    Node* temp = q->front;
+    while (temp) {
+        printf("%d ", temp->floor);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+// Function to simulate the lift movement
+void simulateLift(Queue* q) {
+    int currentFloor = 0;
+    while (!isEmpty(q)) {
+        int targetFloor = q->front->floor;
+        if (targetFloor > currentFloor) {
+            printf("Lift moving up from floor %d to floor %d\n", currentFloor, targetFloor);
+        } else {
+            printf("Lift moving down from floor %d to floor %d\n", currentFloor, targetFloor);
+        }
+        currentFloor = targetFloor;
+        dequeue(q);
+    }
+}
+
+int main() {
+    Queue* q = createQueue();
+    int choice, floor;
+    while (1) {
+        printf("1. Add floor to queue\n");
+        printf("2. Remove floor from queue\n");
+        printf("3. Display queue\n");
+        printf("4. Simulate lift movement\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                printf("Enter the floor number: ");
+                scanf("%d", &floor);
+                if (floor >= 0 && floor < MAX_FLOORS) {
+                    enqueue(q, floor);
+                } else {
+                    printf("Invalid floor number\n");
+                }
+                break;
+            case 2:
+                dequeue(q);
+                break;
+            case 3:
+                displayQueue(q);
+                break;
+            case 4:
+                simulateLift(q);
+                break;
+            case 5:
+                exit(0);
+            default:
+                printf("Invalid choice\n");
+        }
+    }
+    return 0;
+}
